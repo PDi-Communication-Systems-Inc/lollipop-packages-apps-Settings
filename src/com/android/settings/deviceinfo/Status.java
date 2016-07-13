@@ -626,9 +626,15 @@ public class Status extends PreferenceActivity {
 	      Log.e(TAG, ioe.toString());
 	   }
 
-	   wifiMacAddressPref.setSummary(!TextUtils.isEmpty(wifiMacAddress) ?
-                                         wifiMacAddress : getString(
-					 R.string.status_unavailable));
+           if (wifiMacAddress != null) {
+	      wifiMacAddressPref.setSummary(!TextUtils.isEmpty(wifiMacAddress) ?
+                                            wifiMacAddress : getString(
+		    			    R.string.status_unavailable));
+           }
+           else {
+              Log.e(TAG, "Wi-fi Mac address is null");
+              wifiMacAddressPref.setSummary(R.string.status_unavailable);
+           }
         }
         else {
            wifiMacAddressPref.setSummary(!TextUtils.isEmpty(macAddress) ? macAddress
