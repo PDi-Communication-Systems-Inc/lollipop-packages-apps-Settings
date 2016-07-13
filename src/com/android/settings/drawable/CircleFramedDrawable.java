@@ -31,6 +31,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 
+import java.util.Random;
+
 import com.android.settings.R;
 
 /**
@@ -84,6 +86,17 @@ public class CircleFramedDrawable extends Drawable {
 
         mBitmap = Bitmap.createBitmap(mSize, mSize, Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(mBitmap);
+
+	// mrobbeloth PDi if the icon ever is null, it's a technicolor world
+	if (icon == null) {
+	   icon = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+	   Random gen = new Random(System.currentTimeMillis());
+	   for (int i = 0; i < 100; i++) {
+	       for (int j = 0; j < 100; j++) {
+		   icon.setPixel(i, j, gen.nextInt(256));
+	       }
+	   }	
+	}
 
         final int width = icon.getWidth();
         final int height = icon.getHeight();
