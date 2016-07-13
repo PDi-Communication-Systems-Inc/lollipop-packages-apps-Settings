@@ -1267,4 +1267,23 @@
         <item>Cached (activity client)</item>
         <item>Cached (empty)</item>
     </string-array>
+
+   <!-- OTA Arrays -->
+   <string-array name="ota_protocols_human_readable">
+       <item> Hypertext Transfer Protocol (HTTP) </item>
+       <item> Secure Hypertext Transfer Protocol (HTTPS) </item>
+       <item> File Transfer Protocol (FTP) </item>
+       <item> Local File Resource (file) </item>
+       <item> Java Archive Resource (jar) </item>
+   </string-array>
+
+    <!-- Communication transfer mediums for OTA updates  -->
+    <string-array name="ota_protocols">
+       <item> http </item>
+       <item> https </item>
+       <item> ftp </item>
+       <item> file </item>
+       <item> jar </item>
+   </string-array>
+
 </resources>
