@@ -56,6 +56,14 @@ import com.android.settings.R;
 import com.android.settings.Utils;
 
 import java.lang.ref.WeakReference;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.lang.IllegalArgumentException;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+
+import android.util.Log;
 
 /**
  * Display the following information
@@ -73,6 +81,8 @@ import java.lang.ref.WeakReference;
  *
  */
 public class Status extends PreferenceActivity {
+
+    private static final String TAG = "SETTINGS_STATUS";
 
     private static final String KEY_DATA_STATE = "data_state";
     private static final String KEY_SERVICE_STATE = "service_state";
@@ -95,6 +105,7 @@ public class Status extends PreferenceActivity {
     private static final String KEY_SERIAL_NUMBER = "serial_number";
     private static final String KEY_ICC_ID = "icc_id";
     private static final String KEY_WIMAX_MAC_ADDRESS = "wimax_mac_address";
+    private static final String KEY_ETHERNET_MAC_ADDRESS = "ethernet_mac_address";
     private static final String[] PHONE_RELATED_ENTRIES = {
         KEY_DATA_STATE,
         KEY_SERVICE_STATE,
@@ -572,10 +583,111 @@ public class Status extends PreferenceActivity {
     }
 
     private void setWifiStatus() {
-        WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
+        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+
+        Preference wifiMacAddressPref = findPreference(KEY_WIFI_MAC_ADDRESS);
+
         String macAddress = wifiInfo == null ? null : wifiInfo.getMacAddress();
-        mWifiMacAddress.setSummary(!TextUtils.isEmpty(macAddress) ? macAddress : mUnavailable);
+
+        if (wifiInfo == null)  {
+
+	   /* Try to open sysfs setting for the wifi adapater containing
+              its media access control (MAC) address */
+	   File f = new File("/sys/class/net/wlan0/address");
+
+	   FileReader fr = null;
+	   try {
+	      if (f != null) {
+                 fr = new FileReader(f);
+	      }
+	   } 
+	   catch (FileNotFoundException fnfe2) {
+	      Log.e(TAG, fnfe2.toString());
+	   }
+
+ 
+           BufferedReader rf_address = null;
+	   if (fr != null) {
+	      rf_address = new BufferedReader(fr);
+	   }
+
+	   String wifiMacAddress = null;          
+           /* Retrieve the one and only wifi setting*/
+	   try {
+	      if (rf_address != null) {
+	         wifiMacAddress = rf_address.readLine();
+	      }
+	      else {
+	         Log.w(TAG, "No Wifi MAC address to read");
+	      }
+	   }
+	   catch (IOException ioe) {
+	      Log.e(TAG, ioe.toString());
+	   }
+
+	   wifiMacAddressPref.setSummary(!TextUtils.isEmpty(wifiMacAddress) ?
+                                         wifiMacAddress : getString(
+					 R.string.status_unavailable));
+        }
+        else {
+           wifiMacAddressPref.setSummary(!TextUtils.isEmpty(macAddress) ? macAddress
+                   : getString(R.string.status_unavailable));
+        }
     }
+
+    private void setEthernetStatus() {
+
+	/* Try to open sysfs setting for the ethernet adapater containing
+           its media access control (MAC) address */
+	File f = new File("/sys/class/net/eth0/address");
+
+	FileReader fr = null;
+	try {
+	   if (f != null) {
+              fr = new FileReader(f);
+	   }
+	}
+	catch (FileNotFoundException fnfe2) {
+	   Log.e(TAG, fnfe2.toString());
+	}
+
+	BufferedReader rf_address = null;
+	if (fr != null) {
+	   rf_address = new BufferedReader(fr);
+	}
+
+	String ethMacAddress = null;
+	/* Retrieve the one and only line in the ethernet address file setting*/
+	try {
+	   if (rf_address != null) {
+	      ethMacAddress = rf_address.readLine();
+	   }
+	   else {
+	     Log.w(TAG, "No MAC address to read");
+	   }
+	}
+	catch (IOException ioe) {
+	   Log.e(TAG, ioe.toString());
+	}
+
+	/* Place ethernet MAC Address onto preference entry in Settings--about--Status */
+	if (ethMacAddress != null) {
+	   Preference ethMacAddressPref = findPreference(KEY_ETHERNET_MAC_ADDRESS);
+	   ethMacAddressPref.setSummary(!TextUtils.isEmpty(ethMacAddress) ? 
+	      ethMacAddress : getString(R.string.status_unavailable));
+	}
+
+	/* Be a good citizen, close your resources*/
+	try {
+	    if (rf_address != null) {
+	       rf_address.close();
+	    }
+	}
+	catch (IOException ioe2){
+	   Log.e(TAG, ioe2.toString());
+	}
+    } 
 
     private void setIpAddressStatus() {
         String ipAddress = Utils.getDefaultIpAddresses(this.mCM);
@@ -602,6 +714,7 @@ public class Status extends PreferenceActivity {
     void updateConnectivity() {
         setWimaxStatus();
         setWifiStatus();
+        setEthernetStatus();
         setBtStatus();
         setIpAddressStatus();
     }
