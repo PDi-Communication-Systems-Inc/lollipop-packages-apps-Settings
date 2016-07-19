@@ -170,6 +170,9 @@ public class BatteryInfo extends Activity {
         mHandler.sendEmptyMessageDelayed(EVENT_TICK, 1000);
         
         registerReceiver(mIntentReceiver, mIntentFilter);
+
+       // PDi Tabs are always AC powered
+       mPower.setText(getString(R.string.battery_info_power_ac));
     }
 
     @Override
