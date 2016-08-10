@@ -672,7 +672,9 @@ public class Status extends PreferenceActivity {
           sb.append(dns4 + ",");
        }
 
-       if (sb.charAt(sb.length()-1) == ',') {
+       /* guard against zero length strings, 
+          check last char for comma and erase if there */
+       if ((sb.length() > 0) && (sb.charAt(sb.length()-1) == ',')) {
           sb.deleteCharAt(sb.length()-1);
        }
 
