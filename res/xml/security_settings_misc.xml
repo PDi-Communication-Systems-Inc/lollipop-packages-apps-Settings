@@ -58,8 +58,8 @@
                 android:summaryOn="@string/install_unknown_applications"
                 android:persistent="false" />
 
-        <Preference android:title="@string/reboot_recovery" 
-                    android:key="device_reboot"
+        <Preference android:title="@string/reboot_recovery"
+                    android:key="device_reboot_recovery"
                     android:persistent="false">
         </Preference>
 
