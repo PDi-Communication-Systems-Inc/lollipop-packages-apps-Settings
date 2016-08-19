@@ -1109,6 +1109,14 @@
     <!-- Summary of preference to manage device policies -->
     <string name="manage_trust_agents_summary">View or deactivate trust agents</string>
 
+    <!-- Summary of preference to manage device recovery -->
+    <string name="reboot_recovery">Device recovery</string>
+
+ <!-- Summary of preference to manage device recovery -->
+    <string name="reboot_recovery_msg">Click yes to start the Device Recovery!</string>
+
+
+
     <!-- Bluetooth settings -->
     <!-- Bluetooth settings check box title on Main Settings screen -->
     <string name="bluetooth_quick_toggle_title">Bluetooth</string>

@@ -58,6 +58,11 @@
                 android:summaryOn="@string/install_unknown_applications"
                 android:persistent="false" />
 
+        <Preference android:title="@string/reboot_recovery" 
+                    android:key="device_reboot"
+                    android:persistent="false">
+        </Preference>
+
     </PreferenceCategory>
 
     <PreferenceCategory android:key="credentials_management"

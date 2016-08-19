@@ -35,6 +35,7 @@ import android.preference.SwitchPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.provider.SearchIndexableResource;
@@ -45,6 +46,11 @@ import android.service.trust.TrustAgentService;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View.OnClickListener;
+import android.view.View;
+import android.widget.Button;
+import android.os.PowerManager;
+
 
 import com.android.internal.widget.LockPatternUtils;
 import com.android.settings.TrustAgentUtils.TrustAgentComponentInfo;
@@ -99,6 +105,7 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private static final String PACKAGE_MIME_TYPE = "application/vnd.android.package-archive";
     private static final String KEY_TRUST_AGENT = "trust_agent";
     private static final String KEY_SCREEN_PINNING = "screen_pinning_settings";
+    private static final String KEY_DEVICE_REBOOT_RECOVERY = "device_reboot_recovery";
 
     // These switch preferences need special handling since they're not all stored in Settings.
     private static final String SWITCH_PREFERENCE_KEYS[] = { KEY_LOCK_AFTER_TIMEOUT,
@@ -127,6 +134,7 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private SwitchPreference mPowerButtonInstantlyLocks;
 
     private boolean mIsPrimary;
+    private Preference mRebootRecovery;
 
     private Intent mTrustAgentClickIntent;
 
@@ -137,7 +145,6 @@ public class SecuritySettings extends SettingsPreferenceFragment
         mLockPatternUtils = new LockPatternUtils(getActivity());
 
         mDPM = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
-
         mChooseLockSettingsHelper = new ChooseLockSettingsHelper(getActivity());
 
         if (savedInstanceState != null
@@ -331,6 +338,48 @@ public class SecuritySettings extends SettingsPreferenceFragment
             credentialsManager.removePreference(root.findPreference(KEY_CREDENTIALS_INSTALL));
             credentialsManager.removePreference(root.findPreference(KEY_CREDENTIAL_STORAGE_TYPE));
         }
+
+        Preference deviceRebootPref = (Preference) findPreference(KEY_DEVICE_REBOOT_RECOVERY);
+        deviceRebootPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        public boolean onPreferenceClick(Preference preference){
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+				getActivity());
+
+			// set title
+			alertDialogBuilder.setTitle(R.string.reboot_recovery);
+
+			// set dialog message
+			alertDialogBuilder
+				.setMessage(R.string.reboot_recovery_msg)
+				.setCancelable(false)
+				.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						// if this button is clicked, close
+						// current activity
+                                        try {
+                                              PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                                              pm.reboot("recovery");
+                                        } catch (Exception ex) {
+                                            Log.i(TAG, "Could not perform reboot recovery", ex);
+                                        }
+						SecuritySettings.this.finish();
+					}
+				  })
+				.setNegativeButton("No",new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						// if this button is clicked, just close
+						// the dialog box and do nothing
+						dialog.cancel();
+					}
+				});
+
+				// create alert dialog
+				AlertDialog alertDialog = alertDialogBuilder.create();
+				// show it
+				alertDialog.show();
+                return true;
+             }
+	});
 
         // Application install
         PreferenceGroup deviceAdminCategory = (PreferenceGroup)
