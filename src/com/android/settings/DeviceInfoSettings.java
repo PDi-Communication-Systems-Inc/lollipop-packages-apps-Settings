@@ -76,6 +76,7 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
     private static final String PROPERTY_EQUIPMENT_ID = "ro.ril.fccid";
     private static final String KEY_DEVICE_FEEDBACK = "device_feedback";
     private static final String KEY_SAFETY_LEGAL = "safetylegal";
+    private static final String KEY_BOARD_VERSION= "board_version_preference";
 
     static final int TAPS_TO_BE_A_DEVELOPER = 7;
 
@@ -106,6 +107,11 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
             String status = getResources().getString(R.string.selinux_status_permissive);
             setStringSummary(KEY_SELINUX_STATUS, status);
         }
+
+        // Retrieve hardware encoded board version if passed from bootloader
+        findPreference(KEY_BOARD_VERSION).setSummary(
+           SystemProperties.get("pdiarm.cmdline.board_version", 
+                                getString(R.string.device_info_not_available)));
 
         // Remove selinux information if property is not present
         removePreferenceIfPropertyMissing(getPreferenceScreen(), KEY_SELINUX_STATUS,
