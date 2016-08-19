@@ -106,6 +106,8 @@ public class Status extends PreferenceActivity {
     private static final String KEY_ICC_ID = "icc_id";
     private static final String KEY_WIMAX_MAC_ADDRESS = "wimax_mac_address";
     private static final String KEY_ETHERNET_MAC_ADDRESS = "ethernet_mac_address";
+    private static final String KEY_ETHERNET_DNS_ADDRESSES = "ethernet_dns_addresses";
+    private static final String KEY_WIFI_DNS_ADDRESSES = "wifi_dns_addresses";
     private static final String[] PHONE_RELATED_ENTRIES = {
         KEY_DATA_STATE,
         KEY_SERVICE_STATE,
@@ -642,6 +644,70 @@ public class Status extends PreferenceActivity {
         }
     }
 
+    private void setWifiDnsStatus() {
+       /* Retrieve the widget where we'll add the dns values */
+       Preference wifiDnsAddressPref = findPreference(KEY_WIFI_DNS_ADDRESSES);
+
+       /* Retrieve the dns values from the system properties object */
+       String dns1 = SystemProperties.get("dhcp.wlan0.dns1");
+       String dns2 = SystemProperties.get("dhcp.wlan0.dns2");
+       String dns3 = SystemProperties.get("dhcp.wlan0.dns3");
+       String dns4 = SystemProperties.get("dhcp.wlan0.dns4");
+
+       /* Build the string with the dns values */
+       StringBuilder sb = new StringBuilder();
+       if (dns1.length() > 0) {
+          sb.append(dns1 + ",");
+       }
+
+       if (dns2.length() > 0)  {
+          sb.append(dns2 + ",");
+       }
+       
+       if (dns3.length() > 0)  {
+          sb.append(dns3 + ",");
+       }
+ 
+       if (dns4.length() > 0)  {
+          sb.append(dns4 + ",");
+       }
+
+       /* guard against zero length strings, 
+          check last char for comma and erase if there */
+       if ((sb.length() > 0) && (sb.charAt(sb.length()-1) == ',')) {
+          sb.deleteCharAt(sb.length()-1);
+       }
+
+       /* Add the dns values to the widget */
+       if ((wifiDnsAddressPref != null) && (sb.length() > 0)) {
+          wifiDnsAddressPref.setSummary(sb.toString());
+       }
+    }
+
+    private void setEthernetDnsStatus() {
+       /* Retrieve the widget where we'll add the dns values */
+       Preference ethernetDnsAddressPref = findPreference(KEY_ETHERNET_DNS_ADDRESSES);
+
+       /* Retrieve the dns values from the system properties object */
+       String dns1 = SystemProperties.get("dhcp.eth0.dns1");
+       String dns2 = SystemProperties.get("dhcp.eth0.dns2");
+
+       /* Build the string with the dns values */
+       StringBuilder sb = new StringBuilder();
+       if (dns1.length() > 0) {
+          sb.append(dns1 + ", ");
+       }   
+
+       if (dns2.length() > 0)  {
+          sb.append(dns2);
+       }   
+           
+      /* Add the dns values to the widget */
+      if ((ethernetDnsAddressPref != null) && (sb.length() > 0)) {
+         ethernetDnsAddressPref.setSummary(sb.toString());
+      }   
+    } 
+
     private void setEthernetStatus() {
 
 	/* Try to open sysfs setting for the ethernet adapater containing
@@ -721,6 +787,8 @@ public class Status extends PreferenceActivity {
         setWimaxStatus();
         setWifiStatus();
         setEthernetStatus();
+        setWifiDnsStatus();
+        setEthernetDnsStatus();
         setBtStatus();
         setIpAddressStatus();
     }
