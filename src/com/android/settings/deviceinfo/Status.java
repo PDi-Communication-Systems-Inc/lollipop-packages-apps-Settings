@@ -63,6 +63,8 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import java.text.DecimalFormat;
+
 import android.util.Log;
 
 /**
@@ -108,6 +110,10 @@ public class Status extends PreferenceActivity {
     private static final String KEY_ETHERNET_MAC_ADDRESS = "ethernet_mac_address";
     private static final String KEY_ETHERNET_DNS_ADDRESSES = "ethernet_dns_addresses";
     private static final String KEY_WIFI_DNS_ADDRESSES = "wifi_dns_addresses";
+    private static final String KEY_ETHERNET_GATEWAY_ADDRESS = "ethernet_gateway_address";
+    private static final String KEY_ETHERNET_LEASETIME = "ethernet_leasetime";
+    private static final String KEY_WIFI_GATEWAY_ADDRESS = "wifi_gateway_address";
+    private static final String KEY_WIFI_LEASETIME = "wifi_leasetime";
     private static final String[] PHONE_RELATED_ENTRIES = {
         KEY_DATA_STATE,
         KEY_SERVICE_STATE,
@@ -708,6 +714,71 @@ public class Status extends PreferenceActivity {
       }   
     } 
 
+    private void setEthernetGateway() {
+       /* Retrieve the widget where we'll add the gateway value */
+       Preference ethernetGatewayAddressPref = findPreference(KEY_ETHERNET_GATEWAY_ADDRESS);
+
+       /* Retrieve the gateway value from the system properties object */
+       String gateway = SystemProperties.get("dhcp.eth0.gateway");
+
+      /* Add the gateway value to the widget */
+      if ((ethernetGatewayAddressPref != null) && (gateway != null) && 
+          (gateway.length() > 0)) {
+         ethernetGatewayAddressPref.setSummary(gateway);
+      }
+    }
+
+
+    private void setWifiGateway() {
+       /* Retrieve the widget where we'll add the gateway value */
+       Preference wifiGatewayAddressPref = findPreference(KEY_WIFI_GATEWAY_ADDRESS);
+
+       /* Retrieve the gateway value from the system properties object */
+       String gateway = SystemProperties.get("dhcp.wlan0.gateway");
+
+      /* Add the gateway value to the widget */
+      if ((wifiGatewayAddressPref != null) && (gateway != null) && 
+          (gateway.length() > 0)) {
+         wifiGatewayAddressPref.setSummary(gateway);
+      }
+    }
+
+    private void setEthernetLeaseTime() {
+       /* Retrieve the widget where we'll add the lease time value */
+       Preference ethernetLeaseTimePref = findPreference(KEY_ETHERNET_LEASETIME);
+
+       /* Retrieve the lease time value from the system properties object */
+       String leasetime = SystemProperties.get("dhcp.eth0.leasetime");
+
+      /* Add the lease time value to the widget */
+      if ((ethernetLeaseTimePref != null) && (leasetime != null) && 
+          (leasetime.length() > 0)) {
+         long leasetimeL = Long.parseLong(leasetime);
+         float hours = leasetimeL / 3600; 
+         ethernetLeaseTimePref.setSummary(leasetime + " seconds or " + 
+                                          new DecimalFormat("#.##").format(hours) + " hours");
+      }
+    }
+
+
+    private void setWifiLeaseTime() {
+       /* Retrieve the widget where we'll add the lease time values */
+       Preference wifiLeaseTimePref = findPreference(KEY_WIFI_LEASETIME);
+
+       /* Retrieve the lease time value from the system properties object */
+       String leasetime = SystemProperties.get("dhcp.wlan0.leasetime");
+
+      /* Add the least time value to the widget */
+      if ((wifiLeaseTimePref != null) && (leasetime != null) &&  
+          (leasetime.length() > 0)) {
+         long leasetimeL = Long.parseLong(leasetime);
+         float hours = leasetimeL / 3600; 
+         wifiLeaseTimePref.setSummary(leasetime + " seconds or " + 
+                                      new DecimalFormat("#.##").format(hours) + " hours");
+      }
+    }
+
+
     private void setEthernetStatus() {
 
 	/* Try to open sysfs setting for the ethernet adapater containing
@@ -789,6 +860,10 @@ public class Status extends PreferenceActivity {
         setEthernetStatus();
         setWifiDnsStatus();
         setEthernetDnsStatus();
+        setEthernetGateway();
+        setWifiGateway();
+	setEthernetLeaseTime();
+	setWifiLeaseTime();
         setBtStatus();
         setIpAddressStatus();
     }
