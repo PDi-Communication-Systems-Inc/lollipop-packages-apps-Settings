@@ -114,6 +114,8 @@ public class Status extends PreferenceActivity {
     private static final String KEY_ETHERNET_LEASETIME = "ethernet_leasetime";
     private static final String KEY_WIFI_GATEWAY_ADDRESS = "wifi_gateway_address";
     private static final String KEY_WIFI_LEASETIME = "wifi_leasetime";
+    private static final String KEY_ETHERNET_DOMAIN = "ethernet_domain";
+    private static final String KEY_WIFI_DOMAIN = "wifi_domain";
     private static final String[] PHONE_RELATED_ENTRIES = {
         KEY_DATA_STATE,
         KEY_SERVICE_STATE,
@@ -729,6 +731,34 @@ public class Status extends PreferenceActivity {
     }
 
 
+    private void setEthernetDomain() {
+       /* Retrieve the widget where we'll add the gateway value */
+       Preference ethernetDomainPref = findPreference(KEY_ETHERNET_DOMAIN);
+
+       /* Retrieve the gateway value from the system properties object */
+       String domain = SystemProperties.get("dhcp.eth0.domain");
+
+      /* Add the gateway value to the widget */
+      if ((ethernetDomainPref != null) && (domain != null) &&
+          (domain.length() > 0)) {
+         ethernetDomainPref.setSummary(domain);
+      }
+    }
+
+    private void setWifiDomain() {
+       /* Retrieve the widget where we'll add the gateway value */
+       Preference wifiDomainPref = findPreference(KEY_WIFI_DOMAIN);
+
+       /* Retrieve the gateway value from the system properties object */
+       String domain = SystemProperties.get("dhcp.wlan0.domain");
+
+      /* Add the gateway value to the widget */
+      if ((wifiDomainPref != null) && (domain != null) &&
+          (domain.length() > 0)) {
+         wifiDomainPref.setSummary(domain);
+      }
+    }
+
     private void setWifiGateway() {
        /* Retrieve the widget where we'll add the gateway value */
        Preference wifiGatewayAddressPref = findPreference(KEY_WIFI_GATEWAY_ADDRESS);
@@ -864,6 +894,8 @@ public class Status extends PreferenceActivity {
         setWifiGateway();
 	setEthernetLeaseTime();
 	setWifiLeaseTime();
+	setEthernetDomain();
+        setWifiDomain();
         setBtStatus();
         setIpAddressStatus();
     }
