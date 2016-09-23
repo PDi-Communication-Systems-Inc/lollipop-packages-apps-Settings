@@ -360,8 +360,8 @@ public class OtaSettings extends SettingsPreferenceFragment {
           serverTxt = "server="  + server.getText() + "\n";
       }
       else {
-          Log.w(TAG, "Server entry not found in preferences using default pdiarm.com");
-          serverTxt = "server=pdiarm.com" + "\n";
+          Log.w(TAG, "Server entry not found in preferences: using default ota.pdiarm.com");
+          serverTxt = "server=ota.pdiarm.com" + "\n";
       }
 
       if (port != null) {
@@ -569,7 +569,7 @@ public class OtaSettings extends SettingsPreferenceFragment {
 	 try {
 	    FileWriter fw = new FileWriter(file.getAbsoluteFile());
 	    BufferedWriter bw = new BufferedWriter(fw);
-	    bw.write("server=pdiarm.com");
+	    bw.write("server=ota.pdiarm.com");
 	    bw.write("port=80");
 	    bw.write("ota=.ota.zip");
 	    bw.write("build=build.prop");
@@ -580,7 +580,7 @@ public class OtaSettings extends SettingsPreferenceFragment {
 	 catch (IOException ioe) {
 	    Log.e(TAG, "Error reading/closing new default OTA Configuration" + ioe.toString());
 	 }
-	 otaSettingsInMap.put("server", "pdiarm.com");
+	 otaSettingsInMap.put("server", "ota.pdiarm.com");
 	 otaSettingsInMap.put("port", "80");
 	 otaSettingsInMap.put("ota", ".ota.zip");
 	 otaSettingsInMap.put("build", "build.prop");
