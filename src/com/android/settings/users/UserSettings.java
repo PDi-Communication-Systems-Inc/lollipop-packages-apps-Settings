@@ -54,6 +54,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.SimpleAdapter;
+import android.provider.Settings.SettingNotFoundException;
 
 import com.android.internal.util.UserIcons;
 import com.android.internal.widget.LockPatternUtils;
@@ -61,10 +62,17 @@ import com.android.settings.ChooseLockGeneric;
 import com.android.settings.OwnerInfoSettings;
 import com.android.settings.R;
 import com.android.settings.SelectableEditTextPreference;
+import android.preference.ListPreference;
+import android.os.SystemProperties;
 import com.android.settings.SettingsActivity;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
 import com.android.settings.drawable.CircleFramedDrawable;
+import android.os.ServiceManager;
+
+
+import android.os.IBinder;
+import android.os.Parcel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,6 +97,8 @@ public class UserSettings extends SettingsPreferenceFragment
     private static final String SAVE_REMOVING_USER = "removing_user";
     /** UserId of the user that was just added */
     private static final String SAVE_ADDING_USER = "adding_user";
+
+    private static final String KEY_MAX_USERS = "maxUsers";
 
     private static final String KEY_USER_LIST = "user_list";
     private static final String KEY_USER_ME = "user_me";
@@ -117,8 +127,11 @@ public class UserSettings extends SettingsPreferenceFragment
     private static final String KEY_TITLE = "title";
     private static final String KEY_SUMMARY = "summary";
 
+    private static final String FW_MAX_USERS_KEY = "persist.sys.max_users";
+
     private PreferenceGroup mUserListCategory;
     private Preference mMePreference;
+    private ListPreference mMaxUsersPreference;
     private SelectableEditTextPreference mNicknamePreference;
     private int mRemovingUserId = -1;
     private int mAddedUserId = 0;
@@ -169,6 +182,39 @@ public class UserSettings extends SettingsPreferenceFragment
         }
     };
 
+
+
+    void pokeSystemProperties() {
+            (new SystemPropPoker()).execute();
+    }
+
+    static class SystemPropPoker extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            String[] services;
+            try {
+                services = ServiceManager.listServices();
+            } catch (RemoteException e) {
+                return null;
+            }
+            for (String service : services) {
+                IBinder obj = ServiceManager.checkService(service);
+                if (obj != null) {
+                    Parcel data = Parcel.obtain();
+                    try {
+                        obj.transact(IBinder.SYSPROPS_TRANSACTION, data, null, 0);
+                    } catch (RemoteException e) {
+                    } catch (Exception e) {
+                        Log.i(TAG, "Somone wrote a bad service '" + service
+                                + "' that doesn't like to be poked: " + e);
+                    }
+                    data.recycle();
+                }
+            }
+            return null;
+        }
+    }
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -209,6 +255,36 @@ public class UserSettings extends SettingsPreferenceFragment
         filter.addAction(Intent.ACTION_USER_INFO_CHANGED);
         context.registerReceiverAsUser(mUserChangeReceiver, UserHandle.ALL, filter, null,
                 mHandler);
+
+        /*PDi -- mrobbeloth
+         * Retrieve value of max users on system from global table database */
+        mMaxUsersPreference = (ListPreference) findPreference(KEY_MAX_USERS);
+        mMaxUsersPreference.setOnPreferenceChangeListener(this);
+        try {
+           Integer maxUsersInt =
+                Settings.Global.getInt(getActivity().getContentResolver(),
+                KEY_MAX_USERS);
+
+           Log.v(TAG, "Setting default max users value to " + maxUsersInt);
+           mMaxUsersPreference.setDefaultValue(maxUsersInt.toString());
+           mMaxUsersPreference.setValue(maxUsersInt.toString());
+
+           Log.v(TAG, "Writing the property to set max users to " + maxUsersInt);
+           SystemProperties.set(FW_MAX_USERS_KEY, maxUsersInt.toString());
+	   pokeSystemProperties();
+        } catch (SettingNotFoundException snfe) {
+			Log.e(TAG, KEY_MAX_USERS + " setting not found");
+
+            // Setting max users to default
+            Log.w(TAG, "Setting number of default users to 8");
+            mMaxUsersPreference.setDefaultValue(Integer.toString(8));
+            mMaxUsersPreference.setValue(Integer.toString(8));
+
+            Settings.Global.putInt(getActivity().getContentResolver(),
+		        	KEY_MAX_USERS, Integer.valueOf(8));
+	    SystemProperties.set(FW_MAX_USERS_KEY, Integer.valueOf(8).toString());
+            pokeSystemProperties();
+	}
     }
 
     @Override
@@ -671,7 +747,7 @@ public class UserSettings extends SettingsPreferenceFragment
             }
         } else if (pref instanceof UserPreference) {
                 // Get the latest status of the user
-  int userId = ((UserPreference) pref).getUserId();
+                int userId = ((UserPreference) pref).getUserId();
                 UserInfo user = mUserManager.getUserInfo(userId);
                 if (!isInitialized(user)) {
                     mHandler.sendMessage(mHandler.obtainMessage(
@@ -679,7 +755,8 @@ public class UserSettings extends SettingsPreferenceFragment
                 } else {
                     switchUserNow(userId);
                 }
-            }
+       } 
+
         return false;
     }
 
@@ -725,7 +802,32 @@ public class UserSettings extends SettingsPreferenceFragment
                 setUserName(value);
             }
             return true;
+        }  else if (preference == mMaxUsersPreference) {
+                Log.v(TAG, "mMaxUsersPreference was changed");
+                /* PDi -- mrobbeloth
+                 * Write new value of maximum users for system to
+                 * global table of Settings database */
+                Log.v(TAG, "Making sure newValue is an Integer");
+                if (newValue instanceof String) {
+                        Log.v(TAG, "Converting newValue to Integer");
+                        String newValueStr = (String)newValue;
+                        Integer newValueInt = Integer.valueOf(newValueStr);
+                        Log.v(TAG, "writing to settings database");
+                Settings.Global.putInt(getActivity().getContentResolver(),
+                                KEY_MAX_USERS, newValueInt);
+                Log.v(TAG, "writing property");
+                String oldValue = SystemProperties.get(FW_MAX_USERS_KEY);
+                SystemProperties.set(FW_MAX_USERS_KEY, newValueInt.toString());
+                Log.v(TAG, FW_MAX_USERS_KEY + " is now " + newValueInt.toString() +
+                                " replacing the old value " + oldValue);
+                mMaxUsersPreference.setValue(newValueStr);
+                }
+                else {
+                        Log.v(TAG, "newValue is of type " + newValue.getClass().toString());
+                }
+            return true;
         }
+
         return false;
     }
 
