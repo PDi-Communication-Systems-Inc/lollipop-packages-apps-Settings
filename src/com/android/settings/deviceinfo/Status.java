@@ -99,8 +99,6 @@ public class Status extends PreferenceActivity {
     private static final String KEY_MIN_NUMBER = "min_number";
     private static final String KEY_MEID_NUMBER = "meid_number";
     private static final String KEY_SIGNAL_STRENGTH = "signal_strength";
-    private static final String KEY_BATTERY_STATUS = "battery_status";
-    private static final String KEY_BATTERY_LEVEL = "battery_level";
     private static final String KEY_IP_ADDRESS = "wifi_ip_address";
     private static final String KEY_WIFI_MAC_ADDRESS = "wifi_mac_address";
     private static final String KEY_BT_ADDRESS = "bt_address";
@@ -222,10 +220,6 @@ public class Status extends PreferenceActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
-                mBatteryLevel.setSummary(Utils.getBatteryPercentage(intent));
-                mBatteryStatus.setSummary(Utils.getBatteryStatus(getResources(), intent));
-            }
         }
     };
 
@@ -285,8 +279,6 @@ public class Status extends PreferenceActivity {
         mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 
         addPreferencesFromResource(R.xml.device_info_status);
-        mBatteryLevel = findPreference(KEY_BATTERY_LEVEL);
-        mBatteryStatus = findPreference(KEY_BATTERY_STATUS);
         mBtAddress = findPreference(KEY_BT_ADDRESS);
         mWifiMacAddress = findPreference(KEY_WIFI_MAC_ADDRESS);
         mWimaxMacAddress = findPreference(KEY_WIMAX_MAC_ADDRESS);

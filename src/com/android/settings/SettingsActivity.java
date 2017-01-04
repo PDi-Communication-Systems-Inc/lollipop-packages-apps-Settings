@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.PackageInfo;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
@@ -119,6 +120,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import static com.android.settings.dashboard.DashboardTile.TILE_ID_UNDEFINED;
@@ -1077,6 +1079,24 @@ public class SettingsActivity extends Activity
                             // Show the SIM Cards setting if there are more than 2 SIMs installed.
                             if(tile.id != R.id.sim_settings || Utils.showSimCardTile(this)){
                                 category.addTile(tile);
+                            }
+
+ 			    // Hide superuser categories on non-rooted buidls
+			    if (tile.id == R.id.superuser) {
+				category.removeTile(tile);
+				Log.i(LOG_TAG, "loadCategoriesFromResource(): Superuser Tile encountered");
+                                PackageManager pm = getPackageManager();
+				List<PackageInfo> packages = pm.getInstalledPackages(0);
+				ListIterator<PackageInfo> piIter = packages.listIterator();
+				while(piIter.hasNext()) {
+				   PackageInfo pi = piIter.next();
+				   String s = pi.packageName.toLowerCase();
+				   if (s.contains("superuser")) {
+				      Log.i(LOG_TAG, "loadCategoriesFromResource(): superuser package found");
+				      category.addTile(tile);
+				      break;
+ 				   }
+				}
                             }
 
                         } else {
