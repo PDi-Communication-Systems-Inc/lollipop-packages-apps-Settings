@@ -225,7 +225,6 @@ public class SettingsActivity extends Activity
             R.id.system_section,
             R.id.about_settings,
             R.id.accessibility_settings,
-            R.id.home_settings,
             R.id.dashboard
     };
 
