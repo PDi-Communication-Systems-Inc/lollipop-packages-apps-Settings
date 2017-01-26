@@ -65,7 +65,7 @@ import java.util.Objects;
 
 public class ZenModeSettings extends SettingsPreferenceFragment implements Indexable {
     private static final String TAG = "ZenModeSettings";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final String KEY_ZEN_MODE = "zen_mode";
     private static final String KEY_IMPORTANT = "important";

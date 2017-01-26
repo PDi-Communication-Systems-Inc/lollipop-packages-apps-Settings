@@ -36,7 +36,7 @@ import com.android.settings.R;
 
 public class ZenModeAutomaticConditionSelection extends LinearLayout {
     private static final String TAG = "ZenModeAutomaticConditionSelection";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final INotificationManager mNoMan;
     private final H mHandler = new H();

@@ -38,7 +38,7 @@ import java.util.List;
 
 public class ZenModeConditionSelection extends RadioGroup {
     private static final String TAG = "ZenModeConditionSelection";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final INotificationManager mNoMan;
     private final H mHandler = new H();

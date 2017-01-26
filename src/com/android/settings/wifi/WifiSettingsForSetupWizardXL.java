@@ -49,7 +49,7 @@ import java.util.List;
  */
 public class WifiSettingsForSetupWizardXL extends Activity implements OnClickListener {
     private static final String TAG = "SetupWizard";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     // lock orientation into landscape or portrait
     private static final String EXTRA_PREFS_LANDSCAPE_LOCK = "extra_prefs_landscape_lock";
