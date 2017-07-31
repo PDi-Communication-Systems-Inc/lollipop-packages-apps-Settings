@@ -37,6 +37,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.view.inputmethod.InputMethodManager;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -553,7 +555,9 @@ public class ChooseLockPattern extends SettingsActivity {
             getActivity().setResult(RESULT_FINISHED);
             getActivity().finish();
             mDone = true;
-            startActivity(RedactionInterstitial.createStartIntent(getActivity()));
+
+           // Feedback from marketting team to remove Notification screen
+           // startActivity(RedactionInterstitial.createStartIntencev(getActivity()));
         }
     }
 }

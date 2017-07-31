@@ -47,6 +47,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.view.inputmethod.InputMethodManager;
 
 public class ChooseLockPassword extends SettingsActivity {
     public static final String PASSWORD_MIN_KEY = "lockscreen.password_min";
@@ -430,10 +431,15 @@ public class ChooseLockPassword extends SettingsActivity {
                             EncryptionInterstitial.EXTRA_REQUIRE_PASSWORD, true);
                     mLockPatternUtils.setCredentialRequiredToDecrypt(required);
                     mLockPatternUtils.saveLockPassword(pin, mRequestedQuality, isFallback);
+                    mDone = true;
                     getActivity().setResult(RESULT_FINISHED);
                     getActivity().finish();
-                    mDone = true;
-                    startActivity(RedactionInterstitial.createStartIntent(getActivity()));
+                    // Hiding the keyboard here.
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mKeyboardView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                    // Feedback from marketting team to remove Notification screen
+                    // startActivity(RedactionInterstitial.createStartIntent(getActivity()));
                 } else {
                     CharSequence tmp = mPasswordEntry.getText();
                     if (tmp != null) {
