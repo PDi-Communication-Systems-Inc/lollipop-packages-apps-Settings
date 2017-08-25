@@ -55,6 +55,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.*;
 
 public class DisplaySettings extends SettingsPreferenceFragment implements
         Preference.OnPreferenceChangeListener, OnPreferenceClickListener, Indexable {
@@ -82,6 +85,8 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private SwitchPreference mLiftToWakePreference;
     private SwitchPreference mDozePreference;
     private SwitchPreference mAutoBrightnessPreference;
+    private static final String displayTimeout = "displayTimeout.txt";
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -190,6 +195,32 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         return res.getBoolean(com.android.internal.R.bool.config_automatic_brightness_available);
     }
 
+    private static void saveDisplayTimeoutinObb(long value) {
+       BufferedWriter output = null;
+       File dirLauncher = new File("/mnt/sdcard/Android/obb/displaySetting");
+       Log.i(TAG,"creating directory - "+ dirLauncher.getAbsolutePath());
+       dirLauncher.mkdir();
+       File file = new File(dirLauncher,displayTimeout);
+
+       try {
+         Log.i(TAG,"creating file - "+ file.getAbsolutePath());
+         file.createNewFile();
+         output = new BufferedWriter(new FileWriter(file));
+         output.write(Long.toString(value));
+         Log.i(TAG,"display setting value set in Obb - "+ value);
+       } catch (IOException e) {
+           e.printStackTrace();
+       } finally {
+            try {
+                if ( output != null ) {
+                     output.close();
+                }
+            }  catch (IOException e) {
+                  Log.e(TAG,"Error in closing the BufferedWriter");
+            }
+      }
+    }
+
     private void updateTimeoutPreferenceDescription(long currentTimeout) {
         ListPreference preference = mScreenTimeoutPreference;
         String summary;
@@ -213,6 +244,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                         entries[best]);
             }
         }
+        saveDisplayTimeoutinObb(currentTimeout);
         preference.setSummary(summary);
     }
 
