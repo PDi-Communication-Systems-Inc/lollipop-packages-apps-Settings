@@ -261,10 +261,7 @@ public class UserSettings extends SettingsPreferenceFragment
         mMaxUsersPreference = (ListPreference) findPreference(KEY_MAX_USERS);
         mMaxUsersPreference.setOnPreferenceChangeListener(this);
         try {
-           Integer maxUsersInt =
-                Settings.Global.getInt(getActivity().getContentResolver(),
-                KEY_MAX_USERS);
-
+           Integer maxUsersInt = 2;
            Log.v(TAG, "Setting default max users value to " + maxUsersInt);
            mMaxUsersPreference.setDefaultValue(maxUsersInt.toString());
            mMaxUsersPreference.setValue(maxUsersInt.toString());
@@ -276,13 +273,13 @@ public class UserSettings extends SettingsPreferenceFragment
 			Log.e(TAG, KEY_MAX_USERS + " setting not found");
 
             // Setting max users to default
-            Log.w(TAG, "Setting number of default users to 8");
-            mMaxUsersPreference.setDefaultValue(Integer.toString(8));
-            mMaxUsersPreference.setValue(Integer.toString(8));
+            Log.w(TAG, "Setting number of default users to 2");
+            mMaxUsersPreference.setDefaultValue(Integer.toString(2));
+            mMaxUsersPreference.setValue(Integer.toString(2));
 
             Settings.Global.putInt(getActivity().getContentResolver(),
-		        	KEY_MAX_USERS, Integer.valueOf(8));
-	    SystemProperties.set(FW_MAX_USERS_KEY, Integer.valueOf(8).toString());
+		        	KEY_MAX_USERS, Integer.valueOf(2));
+	    SystemProperties.set(FW_MAX_USERS_KEY, Integer.valueOf(2).toString());
             pokeSystemProperties();
 	}
     }
