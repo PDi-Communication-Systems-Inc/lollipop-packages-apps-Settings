@@ -449,7 +449,7 @@ public class DevelopmentSettings extends SettingsPreferenceFragment
             // will lock...  in this case we can't allow the user to turn
             // on "stay awake when plugged in" because that would defeat the
             // restriction.
-            mDisabledPrefs.add(mKeepScreenOn);
+           // mDisabledPrefs.add(mKeepScreenOn); //PDi Change by Meera for allen
         } else {
             mDisabledPrefs.remove(mKeepScreenOn);
         }
