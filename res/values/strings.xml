@@ -1112,9 +1112,14 @@
     <!-- Summary of preference to manage device recovery -->
     <string name="reboot_recovery">Device recovery</string>
 
+    <!-- Summary of preference to manage device recovery -->
+    <string name="device_reboot">Device reboot</string>
+
  <!-- Summary of preference to manage device recovery -->
     <string name="reboot_recovery_msg">Click yes to start the Device Recovery!</string>
 
+ <!-- Summary of preference to manage device reboot -->
+    <string name="device_reboot_msg">Device will reboot now. Do you want to continue?</string>
 
 
     <!-- Bluetooth settings -->

@@ -106,6 +106,7 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private static final String KEY_TRUST_AGENT = "trust_agent";
     private static final String KEY_SCREEN_PINNING = "screen_pinning_settings";
     private static final String KEY_DEVICE_REBOOT_RECOVERY = "device_reboot_recovery";
+    private static final String KEY_DEVICE_REBOOT = "device_reboot";
 
     // These switch preferences need special handling since they're not all stored in Settings.
     private static final String SWITCH_PREFERENCE_KEYS[] = { KEY_LOCK_AFTER_TIMEOUT,
@@ -382,6 +383,50 @@ public class SecuritySettings extends SettingsPreferenceFragment
                 return true;
              }
 	});
+
+
+        Preference deviceReboot = (Preference) findPreference(KEY_DEVICE_REBOOT);
+        deviceReboot.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        public boolean onPreferenceClick(Preference preference){
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                                getActivity());
+
+                        // set title
+                        alertDialogBuilder.setTitle(R.string.device_reboot);
+
+                        // set dialog message
+                        alertDialogBuilder
+                                .setMessage(R.string.device_reboot_msg)
+                                .setCancelable(false)
+                                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,int id) {
+                                                // if this button is clicked, close
+                                                // current activity
+                                        try {
+                                              PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                                              pm.reboot(null);
+                                        } catch (Exception ex) {
+                                            Log.i(TAG, "Could not perform device reboot", ex);
+                                        }
+                                                SecuritySettings.this.finish();
+                                        }
+                                  })
+                                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,int id) {
+                                                // if this button is clicked, just close
+                                                // the dialog box and do nothing
+                                                dialog.cancel();
+                                        }
+                                });
+
+                                // create alert dialog
+                                AlertDialog alertDialog = alertDialogBuilder.create();
+                                // show it
+                                alertDialog.show();
+                return true;
+             }
+        });
+
 
         // Application install
         PreferenceGroup deviceAdminCategory = (PreferenceGroup)
