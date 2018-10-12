@@ -1,0 +1,39 @@
+Write value(0/1 to turn off/on) for the GPIO:
+1) Identify the gpio pin and the corresponding GPIO file from the sys/class/gpio/gpio39/value folder
+then export the gpio pin
+arch/arm/mach-mx6/board-mx6q_ar6mx.c
+
+        // Export the DO1 to user space and pull it low -JTS
+        gpio_request(AR6MX_INTERNAL_SPK_ENABLE, "int_speaker_enable");
+        gpio_direction_output(AR6MX_INTERNAL_SPK_ENABLE, 0);
+        gpio_export(AR6MX_INTERNAL_SPK_ENABLE, true);
+
+
+for JNI:
+
+Step 1: Write an Android JNI Java program
+Write src/com/android/settings/InternalSpeakersJNI.java 
+and have the following
+1) load Shared library   
+    System.loadLibrary("internalspeakers_jni");
+2) Declare the native method(s)
+    public static native void toggleInternalSpeakers(boolean val);
+
+Step 2: compile Class and generate .h file.
+
+javac -d InternalSpeakersJNI.java 
+
+javah -jni InternalSpeakersJNI --> this will generate .h file
+
+Step 3:
+create a jni folder under Settings and copy the generated .h file
+create .c file and copy the function prototype and write the native function body.
+
+In .c file Make sure to have Java_<packagename with _ insteadof .>_<Javafile>_<NativeFunc>()
+format as function name i.e Java_com_android_settings_InternalSpeakersJNI_toggleInternalSpeakers()
+
+Step 4:
+Create Android.mk in jni file under Settings.
+Also modify the Android.mk file under Settings folder to add the required library i.e libinternalspeakers_jni
+
+

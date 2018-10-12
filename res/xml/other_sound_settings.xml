@@ -51,6 +51,13 @@
             android:switchTextOn=""
             android:persistent="false" />
 
+    <SwitchPreference
+            android:key="internal_speakers"
+            android:title="@string/internal_speakers_title"
+            android:switchTextOff=""
+            android:switchTextOn=""
+            android:persistent="false" />
+
     <!-- Vibrate on touch -->
     <SwitchPreference
             android:key="vibrate_on_touch"

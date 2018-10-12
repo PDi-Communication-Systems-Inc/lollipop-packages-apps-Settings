@@ -1115,12 +1115,17 @@
     <!-- Summary of preference to manage device recovery -->
     <string name="device_reboot">Device reboot</string>
 
+    <!-- Summary of preference to manage device recovery -->
+    <string name="device_reboot_is">Device reboot</string>
+
  <!-- Summary of preference to manage device recovery -->
     <string name="reboot_recovery_msg">Click yes to start the Device Recovery!</string>
 
  <!-- Summary of preference to manage device reboot -->
     <string name="device_reboot_msg">Device will reboot now. Do you want to continue?</string>
 
+ <!-- Summary of preference to manage device reboot -->
+    <string name="device_reboot_msg_is">This internal speakers setting will make the device reboot now. Please press Ok</string>
 
     <!-- Bluetooth settings -->
     <!-- Bluetooth settings check box title on Main Settings screen -->
@@ -1943,6 +1948,8 @@
     <string name="dtmf_tone_enable_title">Dial pad touch tones</string>
     <!-- Sound settings screen, setting check box label -->
     <string name="sound_effects_enable_title">Touch sounds</string>
+    <!-- Sound & notification > Other sounds: Title for the option enabling internal speakers sounds. [CHAR LIMIT=30] -->
+    <string name="internal_speakers_enable_title">Internal speakers</string>
     <!-- Sound settings screen, setting check box label -->
     <string name="lock_sounds_enable_title">Screen lock sound</string>
     <!-- Sound settings screen, setting check box label -->
@@ -5716,6 +5723,9 @@
 
     <!-- Sound & notification > Other sounds: Title for the option enabling touch sounds. [CHAR LIMIT=30] -->
     <string name="touch_sounds_title">Touch sounds</string>
+
+    <!-- Sound & notification > Other sounds: Title for the option enabling internal speakers sounds. [CHAR LIMIT=30] -->
+    <string name="internal_speakers_title">Internal speakers</string>
 
     <!-- Sound & notification > Other sounds: Title for the option enabling haptic feedback on touch. [CHAR LIMIT=30] -->
     <string name="vibrate_on_touch_title">Vibrate on touch</string>

@@ -33,17 +33,29 @@ import android.provider.Settings.Global;
 import android.provider.Settings.System;
 import android.telephony.TelephonyManager;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.PowerManager;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
 import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settings.search.Indexable;
+import android.preference.SwitchPreference;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import android.util.Log;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
-public class OtherSoundSettings extends SettingsPreferenceFragment implements Indexable {
+
+public class OtherSoundSettings extends SettingsPreferenceFragment implements  Indexable {
     private static final String TAG = "OtherSoundSettings";
 
     private static final int DEFAULT_ON = 1;
@@ -61,9 +73,14 @@ public class OtherSoundSettings extends SettingsPreferenceFragment implements In
     private static final String KEY_SCREEN_LOCKING_SOUNDS = "screen_locking_sounds";
     private static final String KEY_DOCKING_SOUNDS = "docking_sounds";
     private static final String KEY_TOUCH_SOUNDS = "touch_sounds";
+    private static final String KEY_INTERNAL_SPEAKERS = "internal_speakers";
     private static final String KEY_VIBRATE_ON_TOUCH = "vibrate_on_touch";
     private static final String KEY_DOCK_AUDIO_MEDIA = "dock_audio_media";
     private static final String KEY_EMERGENCY_TONE = "emergency_tone";
+    private SwitchPreference internalSpeakersSwitch;
+
+    private InternalSpeakersJNI internalSpeakers;
+    private SwitchPreference internalSpeakersSwich;
 
     private static final SettingPref PREF_DIAL_PAD_TONES = new SettingPref(
             TYPE_SYSTEM, KEY_DIAL_PAD_TONES, System.DTMF_TONE_WHEN_DIALING, DEFAULT_ON) {
@@ -93,6 +110,69 @@ public class OtherSoundSettings extends SettingsPreferenceFragment implements In
                 am.loadSoundEffects();
             } else {
                 am.unloadSoundEffects();
+            }
+            return super.setSetting(context, value);
+        }
+    };
+
+
+    /*Write 0 or 1 into /cache/backup/internalSpeakers file */
+    public static void writeLocalCacheIntSpeakers(String val) {
+       String content = val;
+       File file;
+       FileOutputStream outputStream;
+       try {
+
+          file = new File("/cache/backup/", "internalSpeakers");
+          outputStream = new FileOutputStream(file);
+          outputStream.write(content.getBytes());
+          outputStream.close();
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+    }
+
+ private static void reboot() {
+       final PowerManager pm = (PowerManager) mCtx.getSystemService(Context.POWER_SERVICE);
+	pm.reboot(null);
+ }
+  private static void rebootDevice() {
+
+
+    AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
+
+            builder.setTitle(R.string.device_reboot_is);
+            builder.setMessage(R.string.device_reboot_msg_is);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    try {
+                         reboot();
+                    } catch (Exception ex) {
+                         Log.i(TAG, "Could not perform device reboot", ex);
+                    }
+
+                    dialog.cancel();
+                }
+            });
+AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+
+    private  static final SettingPref PREF_INTERNAL_SPEAKERS = new SettingPref(
+            TYPE_SYSTEM, KEY_INTERNAL_SPEAKERS, System.INTERNALSPEAKERS_ENABLED, DEFAULT_ON) {
+        @Override
+        protected boolean setSetting(Context context, int value) {
+            if (value == 0) {
+               Log.i(TAG," enable the internal speakers");
+               InternalSpeakersJNI.toggleInternalSpeakers(true);
+               writeLocalCacheIntSpeakers("1");
+               rebootDevice();
+            } else {
+               Log.i(TAG," disable the internal speakers");
+               InternalSpeakersJNI.toggleInternalSpeakers(false);
+               writeLocalCacheIntSpeakers("0");
+               rebootDevice();
             }
             return super.setSetting(context, value);
         }
@@ -156,6 +236,7 @@ public class OtherSoundSettings extends SettingsPreferenceFragment implements In
         PREF_SCREEN_LOCKING_SOUNDS,
         PREF_DOCKING_SOUNDS,
         PREF_TOUCH_SOUNDS,
+        PREF_INTERNAL_SPEAKERS,
         PREF_VIBRATE_ON_TOUCH,
         PREF_DOCK_AUDIO_MEDIA,
         PREF_EMERGENCY_TONE,
@@ -164,6 +245,7 @@ public class OtherSoundSettings extends SettingsPreferenceFragment implements In
     private final SettingsObserver mSettingsObserver = new SettingsObserver();
 
     private Context mContext;
+    private static Context mCtx;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -172,10 +254,30 @@ public class OtherSoundSettings extends SettingsPreferenceFragment implements In
         addPreferencesFromResource(R.xml.other_sound_settings);
 
         mContext = getActivity();
+        mCtx = getActivity();
 
         for (SettingPref pref : PREFS) {
             pref.init(this);
         }
+       
+/*        internalSpeakersSwich = (SwitchPreference) findPreference(KEY_INTERNAL_SPEAKERS);
+        internalSpeakersSwich.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                final boolean val = (Boolean) newValue;
+                if (val == true) { 
+                   Log.i(TAG," enable the internal speakers");
+                   InternalSpeakersJNI.toggleInternalSpeakers(true);
+                   writeLocalCacheIntSpeakers("1");
+                } else {
+                   Log.i(TAG," disable the internal speakers");
+                   InternalSpeakersJNI.toggleInternalSpeakers(false);
+                   writeLocalCacheIntSpeakers("0");
+                }
+                return true;
+            }
+        });
+*/
     }
 
     @Override
